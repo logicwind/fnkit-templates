@@ -24,6 +24,8 @@ RUN npm i
 
 # Copy outer function handler
 COPY index.js ./
+# CUSTOM
+COPY support ./support
 
 # COPY function node packages and install, adding this as a separate
 # entry allows caching of npm install
