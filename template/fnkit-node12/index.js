@@ -10,8 +10,8 @@
 
 const { ApolloServer } = require('apollo-server-fastify');
 const { buildFederatedSchema } = require('@apollo/federation');
-const createContext = require('./context')
-const decorateResolvers = require('./resolver-decorator')
+const createContext = require('./support/context')
+const decorateResolvers = require('./support/resolver-decorator')
 const handler = require('./function/handler');
 const {typeDefs, resolvers, META} = handler
 
