@@ -16,7 +16,7 @@ module.exports = (meta) => {
       const confString = req.headers['conf'] ? req.headers['conf'] : '{}'
       const conf = JSON.parse(confString);
       const valid = validate(conf);
-      //console.log({ conf, valid, confString })
+      //console.log({ conf, valid, confString, 'headers': req.headers })
       if (!valid) {
         console.log(validate.errors);
         throw new Error(validate.errors)

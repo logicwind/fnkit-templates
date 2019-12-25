@@ -20,62 +20,11 @@ const TYPE = {
   ACTION: 'ACTION'
 }
 
-const createRequestLogger = (nc) => async (event, requestId, query, errors, response) => {
-  return nc.publish('nix-demo', {
-    type: TYPE.REQUEST, event, requestId, query, errors, response
-  })
-}
-
 const createActionLogger = (nc) => async (event, requestId, args, errors, response) => {
   return nc.publish('nix-demo', {
     type: TYPE.ACTION, event, requestId, args, errors, response
   })
 }
-
-const logRequestPlugin = async (options) => {
-  const natsClient = await createNats();
-//TODO: Pass variables with variable hiding in function meta
-  const requestLogger = createRequestLogger(natsClient)
-  //setTimeout(()=>natsClient.publish('nix-demo', {test:'dd'}), 2000)
-
-  return {
-    serverWillStart() {
-      console.log('Server will Start! ');
-    },
-    requestDidStart({request, context}) {
-      requestLogger(EVENT.RECEIVED, context.requestId, request.query)
-      console.log('Request started!');
-
-      return {
-        parsingDidStart(requestContext) {
-          console.log('Parsing started!');
-        },
-        validationDidStart(requestContext) {
-          console.log('Validation started!');
-        },
-        didResolveOperation(requestContext) {
-          console.log('Resolved Operation!')
-        },
-        executionDidStart({request, context}) {
-          requestLogger(EVENT.EXECUTING, context.requestId, request.query)
-          console.log('Execution Did Start!')
-        },
-        didEncounterErrors(requestContext) {
-          console.log('Did Encounter Errors!')
-        },
-        willSendResponse(requestContext) {
-          const {request, context, errors, response} = requestContext
-          requestLogger(EVENT.COMPLETED, context.requestId, request.query, errors, response.data)
-          //console.log('Will Send Response!')
-        },
-
-      }
-    },
-  };
-};
-
-//TODO: Log each resolver call
-
 
 const createLogActions = async () => {
   const natsClient = await createNats();
@@ -101,6 +50,5 @@ const createLogActions = async () => {
 }
 
 module.exports = {
-  logRequestPlugin,
   createLogActions
 }
