@@ -25,9 +25,11 @@ const init = async () => {
     plugins: []
   });
 
+  const INFO = "this is fnkit function. use /graphql to perform actions";
   const fastify = require('fastify')()
   fastify.get('/meta', async (request, reply) => META)
-  fastify.register(server.createHandler());
+  fastify.get('/', async (request, reply) => 'fnkit function')
+  fastify.post('/', async (request, reply) => INFO)
 
   const port = process.env.http_port || 3000;
   const url = await fastify.listen(port)
