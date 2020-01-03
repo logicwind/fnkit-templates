@@ -1,5 +1,5 @@
 var Ajv = require('ajv');
-var ajv = new Ajv(); // options can be passed, e.g. {allErrors: true}
+var ajv = new Ajv({ useDefaults: true }); // options can be passed, e.g. {allErrors: true}
 
 module.exports = (meta) => {
   var validate = ajv.compile(meta.configSchema);
