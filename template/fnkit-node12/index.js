@@ -13,20 +13,21 @@ const { buildFederatedSchema } = require('@apollo/federation');
 const createContext = require('./support/context')
 const decorateResolvers = require('./support/resolver-decorator')
 const handler = require('./function/handler');
-const {typeDefs, resolvers, META} = handler
+const { typeDefs, resolvers, META } = handler
 
 const init = async () => {
   // Resolvers define the technique for fetching the types defined in the
   // schema. This resolver retrieves books from the "books" array above.
   const decoratedResolvers = await decorateResolvers(resolvers);
   const server = new ApolloServer({
-    schema: buildFederatedSchema([{ typeDefs, resolvers:decoratedResolvers }]),
+    schema: buildFederatedSchema([{ typeDefs, resolvers: decoratedResolvers }]),
     context: createContext(META),
     plugins: []
   });
 
   const INFO = "this is fnkit function. use /graphql to perform actions";
   const fastify = require('fastify')()
+  fastify.register(server.createHandler());
   fastify.get('/meta', async (request, reply) => META)
   fastify.get('/', async (request, reply) => 'fnkit function')
   fastify.post('/', async (request, reply) => INFO)
