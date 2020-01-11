@@ -10,7 +10,7 @@ module.exports = (meta) => {
       //console.log('HEADERS', req.headers, query)
       //FIXME: Security RISK: Confirm whether GetServiceDefinition can be passed with mutation or other queries?
       //Bypass conf checking if service definition request
-      if (query && query.includes('GetServiceDefinition')) {
+      if (query && (query.includes('GetServiceDefinition') || query.includes('IntrospectionQuery'))) {
         return {}
       }
       const confString = req.headers['conf'] ? req.headers['conf'] : '{}'
