@@ -8,19 +8,6 @@ const app = express()
 const handler = require('./function/handler');
 const bodyParser = require('body-parser')
 
-app.use(function (req, res, next) {
-  req.rawBody = '';
-  req.setEncoding('utf8');
-
-  req.on('data', function (chunk) {
-    req.rawBody += chunk;
-  });
-
-  req.on('end', function () {
-    next();
-  });
-});
-
 if (process.env.RAW_BODY === 'true') {
   app.use(bodyParser.raw({ type: '*/*' }))
 } else {
@@ -28,6 +15,22 @@ if (process.env.RAW_BODY === 'true') {
   app.use(bodyParser.json({ limit: jsonLimit }));
   app.use(bodyParser.raw()); // "Content-Type: application/octet-stream"
   app.use(bodyParser.text({ type: "text/*" }));
+  app.use(function (req, res, next) {
+    if (req.headers['transfer-encoding'] && req.headers['transfer-encoding'] === 'chunked') {
+      req.rawBody = '';
+      req.setEncoding('utf8');
+
+      req.on('data', function (chunk) {
+        req.rawBody += chunk;
+      });
+
+      req.on('end', function () {
+        next();
+      })
+    } else {
+      next();
+    }
+  });
 }
 
 app.disable('x-powered-by');
@@ -35,6 +38,7 @@ app.disable('x-powered-by');
 class FunctionEvent {
   constructor(req) {
     this.body = req.body;
+    this.rawBody = req.rawBody;
     this.headers = req.headers;
     this.method = req.method;
     this.query = req.query;
