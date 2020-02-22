@@ -16,12 +16,12 @@ if (process.env.RAW_BODY === 'true') {
   app.use(bodyParser.raw()); // "Content-Type: application/octet-stream"
   app.use(bodyParser.text({ type: "text/*" }));
   app.use(function (req, res, next) {
-    if (req.headers['transfer-encoding'] && req.headers['transfer-encoding'] === 'chunked') {
-      req.rawBody = '';
+    if (!req.headers['content-type'] && req.headers['transfer-encoding'] && req.headers['transfer-encoding'] === 'chunked') {
+      req.body = '';
       req.setEncoding('utf8');
 
       req.on('data', function (chunk) {
-        req.rawBody += chunk;
+        req.body += chunk;
       });
 
       req.on('end', function () {
@@ -38,7 +38,6 @@ app.disable('x-powered-by');
 class FunctionEvent {
   constructor(req) {
     this.body = req.body;
-    this.rawBody = req.rawBody;
     this.headers = req.headers;
     this.method = req.method;
     this.query = req.query;
