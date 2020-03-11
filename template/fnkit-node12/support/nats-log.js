@@ -3,7 +3,7 @@ const { skip } = require('graphql-resolvers')
 
 const createNats = async () => {
   let nc = await nats.connect({
-    servers: ['nats://demo.nats.io:4222'], //, 'tls://demo.nats.io:4443'],
+    servers: [process.env.NATS_URL || 'nats://demo.nats.io:4222'], //, 'tls://demo.nats.io:4443'],
     json: true
   });
   return nc
@@ -21,7 +21,7 @@ const TYPE = {
 }
 
 const createActionLogger = (nc) => async (event, requestId, args, errors, response) => {
-  return nc.publish('nix-demo', {
+  return nc.publish(process.env.NATS_TOPIC || 'nix-demo', {
     type: TYPE.ACTION, event, requestId, args, errors, response
   })
 }
@@ -30,7 +30,7 @@ const createLogActions = async () => {
   const natsClient = await createNats();
   const actionLogger = createActionLogger(natsClient)
 
-  const actionRequestLogger= (parent, args, context) => {
+  const actionRequestLogger = (parent, args, context) => {
     //console.log("%%% LOG ACTION ", args)
     //TODO: Add more info to log
     //TODO: introduce ActionId?
@@ -46,7 +46,7 @@ const createLogActions = async () => {
     return parent;
   }
 
-  return {actionRequestLogger, actionResponseLogger}
+  return { actionRequestLogger, actionResponseLogger }
 }
 
 module.exports = {
