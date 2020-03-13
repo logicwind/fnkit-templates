@@ -3,7 +3,7 @@ const { skip } = require('graphql-resolvers')
 
 const createNats = async () => {
   let nc = await nats.connect({
-    servers: [process.env.NATS_URL || 'nats://demo.nats.io:4222'], //, 'tls://demo.nats.io:4443'],
+    servers: [process.env.NATS_URL],
     json: true
   });
   return nc
@@ -21,7 +21,7 @@ const TYPE = {
 }
 
 const createActionLogger = (nc) => async (event, requestId, args, errors, response) => {
-  return nc.publish(process.env.NATS_TOPIC || 'nix-demo', {
+  return nc.publish(process.env.NATS_TOPIC, {
     type: TYPE.ACTION, event, requestId, args, errors, response
   })
 }
