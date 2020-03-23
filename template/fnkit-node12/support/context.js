@@ -16,14 +16,15 @@ module.exports = (meta) => {
       const confString = req.headers['conf'] ? req.headers['conf'] : '{}'
       const conf = JSON.parse(confString);
       const valid = validate(conf);
-      //console.log({ conf, valid, confString, 'headers': req.headers })
       if (!valid) {
         console.log(validate.errors);
         throw new Error(validate.errors)
       }
       return {
         user: req.headers['user-id'],
-        conf: conf
+        conf: conf,
+        query: query,
+        requestId: req.headers['request-id']
       }
     } catch (e) {
       console.error(e)

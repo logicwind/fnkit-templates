@@ -20,9 +20,9 @@ const TYPE = {
   ACTION: 'ACTION'
 }
 
-const createActionLogger = (nc) => async (event, requestId, args, errors, response) => {
+const createActionLogger = (nc) => async (event, requestId, appFnConfigId, query, args, errors, response) => {
   return nc.publish(process.env.NATS_TOPIC, {
-    type: TYPE.ACTION, event, requestId, args, errors, response
+    type: TYPE.ACTION, event, requestId, appFnConfig: appFnConfigId ? { connect: { id: appFnConfigId } } : {}, query, args, errors, response: typeof response == 'object' ? response : { response: response }
   })
 }
 
@@ -31,10 +31,11 @@ const createLogActions = async () => {
   const actionLogger = createActionLogger(natsClient)
 
   const actionRequestLogger = (parent, args, context) => {
+    // console.log('context', JSON.stringify(context))
     //console.log("%%% LOG ACTION ", args)
     //TODO: Add more info to log
     //TODO: introduce ActionId?
-    actionLogger(EVENT.RECEIVED, context.requestId, args)
+    actionLogger(EVENT.RECEIVED, context.requestId, context.conf ? context.conf.id : undefined, context.query, args)
     return skip;
   }
 
@@ -42,7 +43,7 @@ const createLogActions = async () => {
     //console.log("%%% LOG ACTION ", args)
     //TODO: Add more info to log
     //TODO: add time taken
-    actionLogger(EVENT.COMPLETED, context.requestId, args, null, parent)
+    actionLogger(EVENT.COMPLETED, context.requestId, context.conf ? context.conf.id : undefined, context.query, args, null, parent)
     return parent;
   }
 
